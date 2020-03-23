@@ -17,4 +17,6 @@ class Light{
     public:
         glm::vec3 position;
         glm::vec3 color;
+        Light(){};
+        Light(glm::vec3 pos_,glm::vec3 color_):position(pos_),color(color_){}
 };  

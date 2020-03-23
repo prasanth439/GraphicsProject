@@ -13,16 +13,20 @@ bool Shader::use() { glUseProgram(prog_id); return(glGetError() == GL_NO_ERROR);
 void Shader::setXform(const GLfloat *mvp) {
     glUniformMatrix4fv(MVPid, 1, GL_FALSE, mvp);
 }
+void Shader::setMat4(const char* name,const glm::mat4& mvp)
+{
+   glUniformMatrix4fv(glGetUniformLocation(prog_id,name),1,GL_FALSE,glm::value_ptr(mvp));
+}
 void Shader::setMat4(const char* name,const GLfloat* mvp)
 {
-    glUniformMatrix4fv(glGetUniformLocation(prog_id,name),1,GL_FALSE,mvp);
+   glUniformMatrix4fv(glGetUniformLocation(prog_id,name),1,GL_FALSE,mvp);
 }
 void Shader::setVec3(const char* name,const glm::vec3& vec){
-    glUniform3f(glGetUniformLocation(prog_id,name),vec.x,vec.y,vec.z);
+   glUniform3f(glGetUniformLocation(prog_id,name),vec.x,vec.y,vec.z);
 }
 void Shader::setFloat(const char* name,float f)
 {
-    glUniform1f(glGetUniformLocation(prog_id,name),f);
+   glUniform1f(glGetUniformLocation(prog_id,name),f);
 }
 
 static char *filedata(const char* filename)
@@ -110,8 +114,6 @@ GLuint Shader::vsFromsrc(char vs_src[], bool dofree)
     GLuint vsid = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vsid, 1, &vs_src, NULL);
     glCompileShader(vsid);
-   std::cout<<"Vertex shader "<<glGetError()<<std::endl;
-   std::cout<<"fs from src"<<std::endl;
     GLuint status;
     if(dofree) delete[](vs_src);
     return vsid;
@@ -119,19 +121,10 @@ GLuint Shader::vsFromsrc(char vs_src[], bool dofree)
 
 GLuint Shader::fsFromsrc(char fs_src[], bool dofree)
 {
-   std::cout<<"Frag shader "<<glGetError()<<std::endl;
    if(fs_src == NULL) return -1;
-   std::cout<<"Frag shader "<<glGetError()<<std::endl;
-
    GLuint fsid = glCreateShader(GL_FRAGMENT_SHADER);
-   std::cout<<"Frag shader "<<glGetError()<<std::endl;
-
    glShaderSource(fsid, 1, &fs_src, NULL);
-   std::cout<<"Frag shader "<<glGetError()<<std::endl;
    glCompileShader(fsid);
-   std::cout<<"Frag shader "<<glGetError()<<std::endl;
-   std::cout<<"Frag shader "<<glGetError()<<std::endl;
-   std::cout<<"fs from src"<<std::endl;
    if(dofree) delete[](fs_src);
    return fsid;
 }

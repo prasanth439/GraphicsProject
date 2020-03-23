@@ -1,13 +1,14 @@
 #include "engine.h"
 #include "myrenderer.h"
+#include "cloudrenderer.h"
 #include "camera.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
 
 bool Engine::quit_ = false;
 Engine::Engine(){
-    screen_height = 800;
-    screen_width = 600;
+    screen_width = 800;
+    screen_height = 600;
     quit_ = false;
 }
 
@@ -45,6 +46,8 @@ int Engine::initialize(){
 
 void Engine::sceneLoop(){
     // while all objects
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glEnable(GL_DEPTH_TEST);
     for(auto a:obj_list)
     {
         a->draw_obj();
@@ -54,13 +57,20 @@ void Engine::sceneLoop(){
 
 void Engine::scenesetup()
 {
+        // global light
+
     float fov = 60;
     Camera::main = new Camera(screen_width,screen_height,fov,0.1f,100.0f);
     Shader* cubeShader_ = new Shader("shaders/vertex.glsl","shaders/fragment.glsl");
     Renderer* cubeRenderer_ = new MyRenderer();
     SceneObj* cube = (new SceneObj(cubeRenderer_,cubeShader_))->init();
+
+    // Shader* cloudShader_ = new Shader("shaders/cloudVs.glsl","shaders/cloudFs.glsl");
+    // Renderer* cloudRenderer_ = new CloudRenderer();
+    // SceneObj* cloudBox = (new SceneObj(cloudRenderer_,cloudShader_))->init();
+
     obj_list.push_back(cube);
-    
+    // obj_list.push_back(cloudBox);
 }
 int Engine::start(){
     int init = initialize();

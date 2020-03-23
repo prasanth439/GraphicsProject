@@ -13,7 +13,7 @@ main: $(BUILDDIR)/main
 
 depend: $(DEPFILE)
 
-SRCS=engine.cpp main.cpp myrenderer.cpp renderer.cpp shader.cpp sceneobj.cpp camera.cpp 
+SRCS=engine.cpp main.cpp myrenderer.cpp renderer.cpp shader.cpp sceneobj.cpp camera.cpp cloudrenderer.cpp
 OBJS = $(SRCS:%.cpp=$(BUILDDIR)/%.o)
 
 $(DEPFILE): $(SRCS)

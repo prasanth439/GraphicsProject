@@ -1,4 +1,4 @@
-build/
+build
 main
-test
 test.cpp
+test

@@ -13,6 +13,7 @@ class Shader{
         void init(SceneObj* parent_);
         bool use(); 
         void setXform(const GLfloat *mvp); 
+        void setMat4(const char* name,const glm::mat4& mvp);
         void setMat4(const char* name,const GLfloat* mvp);
         void setVec3(const char* name,const glm::vec3& vec);
         void setFloat(const char* name,float f);

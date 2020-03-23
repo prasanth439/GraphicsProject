@@ -1,13 +1,11 @@
 #include "renderer.h"
 #pragma once
 
-class MyRenderer: public Renderer{
+class CloudRenderer: public Renderer{
     public:
         GLuint vao;
-        Light* li;
         glm::mat4 model_mat;
-        MyRenderer();
+        Light* li;
+        CloudRenderer();
         void render();
-    private:
-        int count_indexes;
 };
