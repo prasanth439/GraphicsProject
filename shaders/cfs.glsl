@@ -120,18 +120,15 @@ void main() {
     vec2 st = gl_FragCoord.xy/u_resolution;
 
 
-    float z = floor(FragPos.y* max_z);
-	float y = (FragPos.y * max_z) - z;
-	vec3 pos = vec3(FragPos.x, y, z / max_z);
+    float z = floor(st.y* max_z);
+	float y = (st.y * max_z) - z;
+	vec3 pos = vec3(st.x, y, z / max_z);
 	vec4 result = vec4(0.0, 0.0, 0.0, 1.0);
 
-	result.r = worley_value(pos);
-	result.g = worley_value(pos * 2.0);
-	result.b = worley_value(pos * 4.0);
+	result.r = 1.0-worley_value(pos*3);
+	result.g = 1.0-worley_value(pos*3 );
+	result.b = 1.0-worley_value(pos*3);
 	
-	
-
-
     FragColor = result;
 
 }
