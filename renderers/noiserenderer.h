@@ -1,0 +1,12 @@
+#include "renderer.h"
+#pragma once
+
+class NoiseRenderer: public Renderer{
+    public:
+        GLuint vao,tbo;
+        glm::mat4 model_mat;
+        Light* li;
+        int count_indexes;
+        NoiseRenderer();
+        void render();
+};

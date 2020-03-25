@@ -2,6 +2,7 @@
 #include "myrenderer.h"
 #include "cloudrenderer.h"
 #include "gridrenderer.h"
+#include "noiserenderer.h"
 #include "camera.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -55,7 +56,7 @@ int Engine::initialize(){
 void Engine::sceneLoop(){
     // while all objects
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    // glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
 
     for(auto a:obj_list)
@@ -81,10 +82,15 @@ void Engine::scenesetup()
     Renderer* gridRenderer_ = new GridRenderer();
     SceneObj* grid = (new SceneObj(gridRenderer_,gridShader_))->init();
 
+    Shader* noiseShader_ = new Shader("shaders/noiseVs.glsl","shaders/noiseFs.glsl");
+    Renderer* noiseRenderer_ = new NoiseRenderer();
+    SceneObj* noise = (new SceneObj(noiseRenderer_,noiseShader_))->init();
 
     obj_list.push_back(grid);
     obj_list.push_back(cube);
     obj_list.push_back(cloudBox);
+    obj_list.push_back(noise);
+
 }
 int Engine::start(){
     if(initialize()==-1){
