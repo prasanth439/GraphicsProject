@@ -26,12 +26,12 @@ int Engine::initialize(){
     
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // glfw window creation
     // --------------------
-    window = glfwCreateWindow(screen_width, screen_height, "LearnOpenGL", NULL, NULL);
+    window = glfwCreateWindow(screen_width, screen_height, "Opengl Project", NULL, NULL);
 
     if (window == NULL)
     {
@@ -40,7 +40,6 @@ int Engine::initialize(){
         return -1;
     }
     glfwMakeContextCurrent(window);
-
     if ( GLEW_OK != glewInit() ) {
         glfwTerminate();
     }

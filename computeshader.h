@@ -23,6 +23,7 @@ class ComputeShader{
         void defaults();
         void makeProgram(GLuint cs);
         GLuint csFromsrc(char *cs_src, bool dofree=true);
+        void dispatch_shader(GLuint,GLuint,GLuint);
         void programFromsrc(char *vs_src, bool dofree=true);
         void programFromfile(const char *cs_file);
 };

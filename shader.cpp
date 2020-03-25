@@ -1,6 +1,5 @@
 #include "shader.h"
 #include <fstream>
-
 #include <iostream>
 
 void Shader::init(SceneObj* parent_)
@@ -112,6 +111,7 @@ static bool isLinked(GLuint program)
    
    return false;
 }
+
 GLuint Shader::vsFromsrc(char vs_src[], bool dofree)
 {
     if(vs_src == NULL) return -1;
