@@ -1,8 +1,8 @@
 CC=g++
-DEBUG=-O3
+DEBUG=-g
 
 CFLAGS=$(INCLUDES) $(DEBUG)
-INCLUDES=-I .
+INCLUDES=-I . -I renderers
 TOPDIR=.
 BUILDDIR=$(TOPDIR)/build
 BUILDDIRVAR=$(TOPDIR)\/build
@@ -13,7 +13,7 @@ main: $(BUILDDIR)/main
 
 depend: $(DEPFILE)
 
-SRCS=engine.cpp main.cpp myrenderer.cpp renderer.cpp shader.cpp sceneobj.cpp camera.cpp cloudrenderer.cpp
+SRCS=engine.cpp main.cpp renderers/myrenderer.cpp renderers/cloudrenderer.cpp renderers/gridrenderer.cpp renderer.cpp shader.cpp sceneobj.cpp camera.cpp 
 OBJS = $(SRCS:%.cpp=$(BUILDDIR)/%.o)
 
 $(DEPFILE): $(SRCS)

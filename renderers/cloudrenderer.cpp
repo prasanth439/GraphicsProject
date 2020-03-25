@@ -1,9 +1,11 @@
-#include "myrenderer.h"
+#include "cloudrenderer.h"
 #include "camera.h"
-MyRenderer::MyRenderer()
+#include "engine.h"
+
+CloudRenderer::CloudRenderer()
 {
     li = new Light();
-    li->position = glm::vec3{0,5,0};
+    li->position = glm::vec3{1,10,0};
     li->color = glm::vec3{1,1,1};
     model_mat = glm::mat4(1.0f);
     GLfloat vertices[] = {
@@ -18,18 +20,18 @@ MyRenderer::MyRenderer()
     };
 
     GLuint indexes[] = {
-        0,1,2,
-        2,3,0,
+        0,2,1,//CLK
+        2,0,3,//CLK
         4,5,6,
         6,7,4,
         7,3,0,
         0,4,7,
-        6,2,1,
-        1,5,6,
+        6,1,2,
+        1,6,5,
         0,1,5,
         5,4,0,
-        3,2,6,
-        6,7,3
+        3,6,2,
+        6,3,7
     };
     count_indexes = sizeof(indexes)/sizeof(indexes[0]);
     GLuint vbo = 0, ebo = 0;
@@ -55,16 +57,25 @@ MyRenderer::MyRenderer()
     glEnableVertexAttribArray(1);
 
     glBindVertexArray(0);
-    return ;
 }
 
-void MyRenderer::render()
+void CloudRenderer::render()
 {
     Shader* s = this->parent->shader;
     s->use();
     // setting 
+    glm::mat4 transl = glm::translate(glm::mat4(1),glm::vec3(0,10,0));
+    glm::mat4 scale = glm::scale(glm::mat4(1),glm::vec3(3,1,3));
+    glm::mat4 temp_model = transl*scale*model_mat;
+    Engine* inst_ = Engine::get_instance();
+    glm::vec2 screen_resol_ = glm::vec2(inst_->screen_width,inst_->screen_height);
+    s->setFloat("focal_len",1/glm::tan(glm::radians(inst_->fov)));
+    s->setVec2("screen_resolution",screen_resol_);
+    s->setVec3("boundBoxMax_",glm::vec3(1));
+    s->setVec3("boundBoxMin_",glm::vec3(1));
+    s->setVec3("worldCamPos",Camera::main->pos);
     s->setVec3("worldLightPos0",li->position);
-    s->setMat4("model",model_mat);
+    s->setMat4("model",temp_model);
     s->setMat4("view",Camera::main->viewmat);
     s->setMat4("project",Camera::main->projmat);
     glBindVertexArray(vao);

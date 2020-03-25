@@ -4,14 +4,27 @@ Camera::Camera(int width, int height, float fov, float near, float far)
 {
     // projection = glm::perspective(glm::radians(45.0f), (float) width / (float)height, 0.1f, 100.0f);
     projection(width, height, fov, near, far); 
-    position(10.0, 10.0, 10.0, false);
+    position(20.0, 20.0, 20.0, false);
     lookat(0.0, 0.0, 0.0, false);
-    upward(0.0, 1.0, 0.0, true);
+    upward(0.0, 1.0, 0.0, false);
+    camForward= glm::normalize(pos-at);// cam X
+    camRight = glm::normalize(glm::cross(up,camForward));// cam Z
+    camUp = glm::cross(camForward,camRight);// cam Y
+    calcProjView();
     // orientation = glm::quat(up);
 }
 
 
-
+void Camera::calcProjViewNative()
+{
+   viewmat = glm::mat4(
+      glm::vec4(camRight.x,camUp.x,camForward.x,0),
+      glm::vec4(camRight.y,camUp.y,camForward.y,0),
+      glm::vec4(camRight.z,camUp.z,camForward.z,0),
+      glm::vec4(-glm::dot(pos,camRight),-glm::dot(pos,camUp),-glm::dot(pos,camForward),1.0)
+   );
+   pvmat =  projmat * viewmat;
+}
 void Camera::calcProjView()
 {
    viewmat = glm::lookAt(pos, at, up);
