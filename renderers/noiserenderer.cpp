@@ -15,10 +15,8 @@ GLuint generateNoiseTexture()
 
     glm::ivec2 tex_dim{128,128}; 
     GLubyte* data = new GLubyte[tex_dim.x*tex_dim.y*3];
-    for(int i=0;i<tex_dim.y;i++)
-    {
-        for(int j=0;j<tex_dim.x;j++)
-        {
+    for(int i=0;i<tex_dim.y;i++){
+        for(int j=0;j<tex_dim.x;j++){
             data[3*tex_dim.x*i + 3*j + 0] = rand()%256;
             data[3*tex_dim.x*i + 3*j + 1] = rand()%256;
             data[3*tex_dim.x*i + 3*j + 2] = rand()%256;

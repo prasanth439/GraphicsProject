@@ -89,7 +89,7 @@ void Engine::scenesetup()
     obj_list.push_back(grid);
     obj_list.push_back(cube);
     obj_list.push_back(cloudBox);
-    // obj_list.push_back(noise);
+    obj_list.push_back(noise);
 
 }
 int Engine::start(){
