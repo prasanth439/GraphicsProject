@@ -69,10 +69,10 @@ void CloudRenderer::render()
     glm::mat4 temp_model = transl*scale*model_mat;
     Engine* inst_ = Engine::get_instance();
     glm::vec2 screen_resol_ = glm::vec2(inst_->screen_width,inst_->screen_height);
-    s->setFloat("focal_len",1/glm::tan(glm::radians(inst_->fov)));
+    s->setFloat("focal_len",1/glm::tan(glm::radians(inst_->fov)/2));
     s->setVec2("screen_resolution",screen_resol_);
-    s->setVec3("boundBoxMax_",glm::vec3(1));
-    s->setVec3("boundBoxMin_",glm::vec3(1));
+    s->setVec3("boundBoxMax_",glm::vec3(2.5,2.5,2.5));
+    s->setVec3("boundBoxMin_",glm::vec3(-2.5,-2.5,-2.5));
     s->setVec3("worldCamPos",Camera::main->pos);
     s->setVec3("worldLightPos0",li->position);
     s->setMat4("model",temp_model);
