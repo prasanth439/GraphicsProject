@@ -1,7 +1,27 @@
 #include "noiserenderer.h"
 #include "camera.h"
 #include "engine.h"
+#include "computeshader.h"
 
+GLuint generateNoiseCompute()
+{
+    glm::ivec2 tex_dim{128,128}; 
+    GLuint tbo = 0;
+    glGenTextures(1, &tbo);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tbo);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, tex_dim.x, tex_dim.y, 0, GL_RGBA, GL_FLOAT, NULL);
+    glBindImageTexture(0, tbo, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F); 
+    ComputeShader* noise_compute = new ComputeShader("shaders/compute/noise2d.glsl");
+    noise_compute->use();
+    noise_compute->dispatch_shader(tex_dim.x/ 16,tex_dim.y/ 16,1);
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+    return tbo;
+}
 GLuint generateNoiseTexture()
 {
     GLuint tbo = 0;
@@ -47,7 +67,7 @@ NoiseRenderer::NoiseRenderer()
     int properties_ = 4;
     int vertices_size = 4;
     int indexes_size = count_indexes;
-    tbo = generateNoiseTexture();
+    tbo = generateNoiseCompute();
 
     // generate and setup vertex buffer object
     glGenBuffers(1, &vbo);
