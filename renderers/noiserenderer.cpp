@@ -1,28 +1,49 @@
 #include "noiserenderer.h"
 #include "camera.h"
 #include "engine.h"
-#include "computeshader.h"
+static void save_texture_to_file(void* ptr,uint size_,const char* name){
+    FILE* noise_write = fopen(name,"wb");
+    fwrite(ptr,size_,1,noise_write);
+    return ;   
+}
+static void load_texture_data_from_file(const char* name,void* data){
+    FILE* noise_read  = fopen(name,"rb");
+    long int size_ = 0;
+    fseek(noise_read,0L,SEEK_END);
+    size_ = ftell(noise_read);
+    fseek(noise_read,0L,SEEK_SET);
+    fread(data,size_,1,noise_read);
+    return ;
+}
 
-GLuint generateNoiseCompute()
+GLuint NoiseRenderer::GenerateNoiseTexture2D(const char* save_file)
 {
-    glm::ivec2 tex_dim{128,128}; 
+    glm::ivec2 tex_dim{256,256}; 
+    glm::vec2 time_scale{10,30};
     GLuint tbo = 0;
+
     glGenTextures(1, &tbo);
-    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tbo);
+    glActiveTexture(GL_TEXTURE0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, tex_dim.x, tex_dim.y, 0, GL_RGBA, GL_FLOAT, NULL);
     glBindImageTexture(0, tbo, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F); 
-    ComputeShader* noise_compute = new ComputeShader("shaders/compute/noise2d.glsl");
+    noise_compute = new ComputeShader("shaders/compute/worley2d.glsl");
     noise_compute->use();
+    noise_compute->setVec2("time_scale",time_scale);
     noise_compute->dispatch_shader(tex_dim.x/ 16,tex_dim.y/ 16,1);
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+    uint buffer_size = tex_dim.x*tex_dim.y*4;
+    GLfloat* tex_output = new GLfloat[buffer_size];
+    glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_FLOAT,tex_output);
+    save_texture_to_file(tex_output,sizeof(GLfloat)*buffer_size,save_file);
     return tbo;
 }
-GLuint generateNoiseTexture()
+
+GLuint NoiseRenderer::LoadNoiseTexture2D(const char* load_file)
 {
     GLuint tbo = 0;
     glGenTextures(1,&tbo);
@@ -33,18 +54,63 @@ GLuint generateNoiseTexture()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glm::ivec2 tex_dim{128,128}; 
-    GLubyte* data = new GLubyte[tex_dim.x*tex_dim.y*3];
-    for(int i=0;i<tex_dim.y;i++){
-        for(int j=0;j<tex_dim.x;j++){
-            data[3*tex_dim.x*i + 3*j + 0] = rand()%256;
-            data[3*tex_dim.x*i + 3*j + 1] = rand()%256;
-            data[3*tex_dim.x*i + 3*j + 2] = rand()%256;
-        }
-    }
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_dim.x, tex_dim.y, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glm::ivec2 tex_dim{256,256}; 
+    GLfloat* data = new GLfloat[tex_dim.x*tex_dim.y*4];
+    load_texture_data_from_file(load_file,data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, tex_dim.x, tex_dim.y, 0, GL_RGBA, GL_FLOAT, data);
     glGenerateMipmap(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,0);
+    delete[] data;
+    return tbo;
+}
+
+GLuint NoiseRenderer::GenerateNoiseTexture3D(const char* save_file)
+{
+    glm::ivec3 tex_dim{256,256,256}; 
+    glm::vec2 time_scale{10,30};
+    GLuint tbo = 0;
+
+    glGenTextures(1, &tbo);
+    glBindTexture(GL_TEXTURE_3D, tbo);
+    glActiveTexture(GL_TEXTURE0);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, tex_dim.x, tex_dim.y, tex_dim.z, 0, GL_RGBA, GL_FLOAT, NULL);
+    glBindImageTexture(0, tbo, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F); 
+    noise_compute = new ComputeShader("shaders/compute/worley3d.glsl");
+    noise_compute->use();
+    noise_compute->setVec2("time_scale",time_scale);
+    noise_compute->dispatch_shader(tex_dim.x/ 8,tex_dim.y/ 8,tex_dim.z/ 8);
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+    uint buffer_size = tex_dim.x*tex_dim.y*tex_dim.z*4;
+    GLfloat* tex_output = new GLfloat[buffer_size];
+    glGetTexImage(GL_TEXTURE_3D,0,GL_RGBA,GL_FLOAT,tex_output);
+    save_texture_to_file(tex_output,sizeof(GLfloat)*buffer_size,save_file);
+    return tbo;
+}
+
+GLuint NoiseRenderer::LoadNoiseTexture3D(const char* load_file)
+{
+    GLuint tbo = 0;
+    glGenTextures(1,&tbo);
+    glBindTexture(GL_TEXTURE_3D,tbo);
+
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glm::ivec3 tex_dim{256,256,256};
+
+    GLfloat* data = new GLfloat[tex_dim.x*tex_dim.y*tex_dim.z*4];
+    load_texture_data_from_file(load_file,data);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, tex_dim.x, tex_dim.y, tex_dim.z , 0, GL_RGBA, GL_FLOAT, data);
+    glGenerateMipmap(GL_TEXTURE_3D);
+    glBindTexture(GL_TEXTURE_3D,0);
     delete[] data;
     return tbo;
 }
@@ -67,8 +133,11 @@ NoiseRenderer::NoiseRenderer()
     int properties_ = 4;
     int vertices_size = 4;
     int indexes_size = count_indexes;
-    tbo = generateNoiseCompute();
+    // tbo = GenerateNoiseTexture2D("worleynoise2D.bin");
+    tbo = GenerateNoiseTexture3D("worleynoise3D.bin");
+    // tbo = LoadNoiseTexture2D("worleynoise2D.bin");
 
+    start_ = std::chrono::high_resolution_clock::now();
     // generate and setup vertex buffer object
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -91,11 +160,25 @@ NoiseRenderer::NoiseRenderer()
 
 void NoiseRenderer::render()
 {
-    Shader* s = this->parent->shader;
-    s->use();
+    float z_value;
     // setting 
-    
-    glBindTexture(GL_TEXTURE_2D,tbo);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end-start_);
+    z_value = glm::sin(duration.count()*0.00005);
+    // glm::ivec2 tex_dim{256,256}; 
+    // glm::vec2 time_scale{(float)duration.count()/100,25};
+    // glBindTexture(GL_TEXTURE_2D,tbo);
+    glBindTexture(GL_TEXTURE_3D,tbo);
+    // glActiveTexture(GL_TEXTURE0);
+    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, tex_dim.x, tex_dim.y, 0, GL_RGBA, GL_FLOAT, NULL);
+    // glBindImageTexture(0, tbo, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F); 
+    // noise_compute->use();
+    // noise_compute->setVec2("time_scale",time_scale);
+    // noise_compute->dispatch_shader(tex_dim.x/ 16,tex_dim.y/ 16,1);
+    // glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);  
+    Shader* s = this->parent->shader;
+    s->use();  
+    s->setFloat("z",z_value);
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES,count_indexes,GL_UNSIGNED_INT,0);
     return;

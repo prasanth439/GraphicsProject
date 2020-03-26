@@ -73,21 +73,21 @@ void Engine::scenesetup()
     Renderer* cubeRenderer_ = new MyRenderer();
     SceneObj* cube = (new SceneObj(cubeRenderer_,cubeShader_))->init();
 
-    Shader* cloudShader_ = new Shader("shaders/cloudVs.glsl","shaders/cloudFs.glsl");
-    Renderer* cloudRenderer_ = new CloudRenderer();
-    SceneObj* cloudBox = (new SceneObj(cloudRenderer_,cloudShader_))->init();
+    // Shader* cloudShader_ = new Shader("shaders/cloudVs.glsl","shaders/cloudFs.glsl");
+    // Renderer* cloudRenderer_ = new CloudRenderer();
+    // SceneObj* cloudBox = (new SceneObj(cloudRenderer_,cloudShader_))->init();
 
     Shader* gridShader_ = new Shader("shaders/gridVs.glsl","shaders/gridFs.glsl");
     Renderer* gridRenderer_ = new GridRenderer();
     SceneObj* grid = (new SceneObj(gridRenderer_,gridShader_))->init();
 
-    Shader* noiseShader_ = new Shader("shaders/noiseVs.glsl","shaders/noiseFs.glsl");
+    Shader* noiseShader_ = new Shader("shaders/noise3DVs.glsl","shaders/noise3DFs.glsl");
     Renderer* noiseRenderer_ = new NoiseRenderer();
     SceneObj* noise = (new SceneObj(noiseRenderer_,noiseShader_))->init();
 
     obj_list.push_back(grid);
     obj_list.push_back(cube);
-    obj_list.push_back(cloudBox);
+    // obj_list.push_back(cloudBox);
     obj_list.push_back(noise);
 
 }
