@@ -73,9 +73,9 @@ void Engine::scenesetup()
     Renderer* cubeRenderer_ = new MyRenderer();
     SceneObj* cube = (new SceneObj(cubeRenderer_,cubeShader_))->init();
 
-    // Shader* cloudShader_ = new Shader("shaders/cloudVs.glsl","shaders/cloudFs.glsl");
-    // Renderer* cloudRenderer_ = new CloudRenderer();
-    // SceneObj* cloudBox = (new SceneObj(cloudRenderer_,cloudShader_))->init();
+    Shader* cloudShader_ = new Shader("shaders/cloudVs.glsl","shaders/cloudFs.glsl");
+    Renderer* cloudRenderer_ = new CloudRenderer();
+    SceneObj* cloudBox = (new SceneObj(cloudRenderer_,cloudShader_))->init();
 
     Shader* gridShader_ = new Shader("shaders/gridVs.glsl","shaders/gridFs.glsl");
     Renderer* gridRenderer_ = new GridRenderer();
@@ -87,8 +87,8 @@ void Engine::scenesetup()
 
     obj_list.push_back(grid);
     obj_list.push_back(cube);
-    // obj_list.push_back(cloudBox);
-    obj_list.push_back(noise);
+    obj_list.push_back(cloudBox);
+    // obj_list.push_back(noise);
 
 }
 int Engine::start(){

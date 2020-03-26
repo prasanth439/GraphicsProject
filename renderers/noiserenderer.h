@@ -13,8 +13,8 @@ class NoiseRenderer: public Renderer{
         ComputeShader* noise_compute;
         NoiseRenderer();
         void render();
+        static GLuint LoadNoiseTexture3D(const char* load_file);
         GLuint GenerateNoiseTexture2D(const char* save_file);
-        GLuint LoadNoiseTexture2D(const char* load_file);
+        static GLuint LoadNoiseTexture2D(const char* load_file);
         GLuint GenerateNoiseTexture3D(const char* save_file);
-        GLuint LoadNoiseTexture3D(const char* load_file);
 };

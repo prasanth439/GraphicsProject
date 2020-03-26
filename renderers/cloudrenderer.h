@@ -3,7 +3,7 @@
 
 class CloudRenderer: public Renderer{
     public:
-        GLuint vao;
+        GLuint vao,tbo;
         glm::mat4 model_mat;
         Light* li;
         int count_indexes;

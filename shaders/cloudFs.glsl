@@ -3,13 +3,18 @@ in vec3 Pos;
 in vec3 Norm;
 
 uniform float focal_len;
+uniform float lightAbsorptionThroughCloud;
+uniform float lightAbsorptionTowardsSun;
+uniform float darknessTh;
+uniform float light_steps;
 uniform vec2 screen_resolution;
+uniform vec4 phaseParams;
 uniform vec3 boundBoxMax_;
 uniform vec3 boundBoxMin_;
 uniform vec3 worldCamPos;
 uniform vec3 worldLightPos0;
 uniform vec3 LightCol0;
-
+uniform sampler3D noiseTexture;
 uniform mat4 view;
 uniform mat4 model;
 out vec4 frag_color;
@@ -51,7 +56,9 @@ vec2 ray_box_intersection(vec3 boundsMin,vec3 boundsMax,vec3 origin,vec3 inv_dir
     // return vec2(dstA,dstB);
 }
 float sample_density(vec3 pos,vec3 bmin,vec3 bmax){
-    
+    vec3 inside_pt = pos - (bmax+bmin)*0.5;
+    vec3 adjusted_pt = inside_pt/(bmax-bmin);
+    return texture(noiseTexture,adjusted_pt).r;
 }
 float lightCalc(vec3 OnRayPos,vec3 bmin,vec3 bmax){
     vec3 light_dir = worldLightPos0;
@@ -61,7 +68,7 @@ float lightCalc(vec3 OnRayPos,vec3 bmin,vec3 bmax){
     float density = 0;
     for(int i = 0; i < light_steps; i++){
         OnRayPos+= step_dist*light_dir;
-        density += max(0, sample_density(OnRayPos)*step_dist); 
+        density += max(0, sample_density(OnRayPos,bmin,bmax)*step_dist); 
     } 
     float transmittance = exp(-density*lightAbsorptionTowardsSun);
     return darknessTh + transmittance*(1-darknessTh);
@@ -82,10 +89,12 @@ void main() {
     vec3 current_pos = vec3(0);
     float step_dist = intersect.y/march_steps;
     vec3 lightEnergy = vec3(0);
+    float cosAngle = dot(ray_dir,worldLightPos0);
+    float phaseVal = phase(cosAngle);
     float transmittance = 1.0f;
     while(current_ray_dist<intersect.y){
         current_pos = start_pt + current_ray_dist*ray_dir;
-        float density = sample_density(current_pos);
+        float density = sample_density(current_pos,bmin,bmax);
         if(density >0){
             float lightTransmittance = lightCalc(current_pos,bmin,bmax);
             lightEnergy+=density*step_dist * transmittance * lightTransmittance * phaseVal;

@@ -1,12 +1,13 @@
 #include "cloudrenderer.h"
+#include "noiserenderer.h"
 #include "camera.h"
 #include "engine.h"
 
 CloudRenderer::CloudRenderer()
 {
     li = new Light();
-    li->position = glm::vec3{1,10,0};
-    li->color = glm::vec3{1,1,1};
+    li->position = glm::normalize(glm::vec3{1,10,3});
+    li->color = glm::vec3{0,1,0};
     model_mat = glm::mat4(1.0f);
     GLfloat vertices[] = {
         -2.5f, -2.5f, -2.5f, -0.5f, -0.5f, -0.5f,// 0
@@ -33,6 +34,7 @@ CloudRenderer::CloudRenderer()
         3,6,2,
         6,3,7
     };
+    tbo = NoiseRenderer::LoadNoiseTexture3D("worleynoise3D.bin");
     count_indexes = sizeof(indexes)/sizeof(indexes[0]);
     GLuint vbo = 0, ebo = 0;
     int properties_ = 6;
@@ -61,6 +63,7 @@ CloudRenderer::CloudRenderer()
 
 void CloudRenderer::render()
 {
+    glBindTexture(GL_TEXTURE_3D,tbo);
     Shader* s = this->parent->shader;
     s->use();
     // setting 
@@ -70,11 +73,17 @@ void CloudRenderer::render()
     Engine* inst_ = Engine::get_instance();
     glm::vec2 screen_resol_ = glm::vec2(inst_->screen_width,inst_->screen_height);
     s->setFloat("focal_len",1/glm::tan(glm::radians(inst_->fov)/2));
+    s->setFloat("lightAbsorptionThroughCloud",0.4);
+    s->setFloat("lightAbsorptionTowardsSun",0.4);
+    s->setFloat("light_steps",4.0f);
+    s->setFloat("darknessTh",0.7f);
     s->setVec2("screen_resolution",screen_resol_);
+    s->setVec3("phaseParams",glm::vec4(0.6f,0.6f,0.6f,0.6f));
     s->setVec3("boundBoxMax_",glm::vec3(2.5,2.5,2.5));
     s->setVec3("boundBoxMin_",glm::vec3(-2.5,-2.5,-2.5));
     s->setVec3("worldCamPos",Camera::main->pos);
     s->setVec3("worldLightPos0",li->position);
+    s->setVec3("LightCol0",li->color);
     s->setMat4("model",temp_model);
     s->setMat4("view",Camera::main->viewmat);
     s->setMat4("project",Camera::main->projmat);

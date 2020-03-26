@@ -150,7 +150,7 @@
  glm/gtc/../gtc/../ext/vector_uint1.hpp \
  glm/gtc/../gtc/../ext/vector_uint1_precision.hpp glm/gtc/type_ptr.inl \
  shader.h camera.h renderers/myrenderer.h renderers/cloudrenderer.h \
- renderers/gridrenderer.h renderers/noiserenderer.h \
+ renderers/gridrenderer.h renderers/noiserenderer.h computeshader.h \
  glm/gtx/quaternion.hpp glm/gtx/../ext/quaternion_exponential.hpp \
  glm/gtx/../ext/quaternion_exponential.inl glm/gtx/../gtx/norm.hpp \
  glm/gtx/../gtx/../gtx/component_wise.hpp \
@@ -613,7 +613,7 @@
  glm/gtc/../gtc/../ext/vector_int1_precision.hpp \
  glm/gtc/../gtc/../ext/vector_uint1.hpp \
  glm/gtc/../gtc/../ext/vector_uint1_precision.hpp glm/gtc/type_ptr.inl \
- camera.h engine.h computeshader.h
+ computeshader.h camera.h engine.h
 ./build/cloudrenderer.o: renderers/cloudrenderer.cpp renderers/cloudrenderer.h \
  renderer.h sceneobj.h shader.h glm/glm.hpp glm/detail/_fixes.hpp \
  glm/detail/setup.hpp glm/detail/../simd/platform.h glm/fwd.hpp \
@@ -766,7 +766,7 @@
  glm/gtc/../gtc/../ext/vector_int1_precision.hpp \
  glm/gtc/../gtc/../ext/vector_uint1.hpp \
  glm/gtc/../gtc/../ext/vector_uint1_precision.hpp glm/gtc/type_ptr.inl \
- camera.h engine.h
+ renderers/noiserenderer.h computeshader.h camera.h engine.h
 ./build/gridrenderer.o: renderers/gridrenderer.cpp renderers/gridrenderer.h \
  renderer.h sceneobj.h shader.h glm/glm.hpp glm/detail/_fixes.hpp \
  glm/detail/setup.hpp glm/detail/../simd/platform.h glm/fwd.hpp \

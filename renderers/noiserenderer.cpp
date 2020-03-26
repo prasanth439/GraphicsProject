@@ -134,8 +134,9 @@ NoiseRenderer::NoiseRenderer()
     int vertices_size = 4;
     int indexes_size = count_indexes;
     // tbo = GenerateNoiseTexture2D("worleynoise2D.bin");
-    tbo = GenerateNoiseTexture3D("worleynoise3D.bin");
+    // tbo = GenerateNoiseTexture3D("worleynoise3D.bin");
     // tbo = LoadNoiseTexture2D("worleynoise2D.bin");
+    tbo = LoadNoiseTexture3D("worleynoise3D.bin");
 
     start_ = std::chrono::high_resolution_clock::now();
     // generate and setup vertex buffer object
