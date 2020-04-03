@@ -1,0 +1,49 @@
+
+float accumdist = 0;
+float curdensity = 0;
+float transmittance = 1;
+vec3 localcamvec = rd * StepSize;
+float ShadowSteps = 5;
+float shadowstepsize = 1.0f / ShadowSteps;
+vec3 LightVector = ;
+float Density = 1.0f;
+float ShadowDensity = 1.0f;
+LightVector *= shadowstepsize;
+ShadowDensity *= shadowstepsize;
+
+Density *= StepSize;
+vec3 lightenergy = 0;
+float shadowthresh = -log(ShadowThreshold) / ShadowDensity;
+
+for (int i = 0; i < MaxSteps; i++)
+{
+    float cursample = texture(noiseTexture, CurPos).r;
+
+    //Sample Light Absorption and Scattering
+    if( cursample > 0.001)
+    {
+        vec3 lpos = CurPos;
+        float shadowdist = 0;
+
+        for (int s = 0; s < ShadowSteps; s++)
+        {
+            lpos += LightVector;
+            float lsample =texture(noiseTexture, lpos).r;
+
+            vec3 shadowboxtest = floor( 0.5 + ( abs( 0.5 - lpos ) ) );
+            float exitshadowbox = shadowboxtest.x + shadowboxtest.y + shadowboxtest.z;
+            shadowdist += lsample;
+
+            if(shadowdist > shadowthresh || exitshadowbox >= 1) break;
+        }
+
+        curdensity = saturate(cursample * Density);
+        float shadowterm = exp(-shadowdist * ShadowDensity);
+        vec3 absorbedlight = shadowterm * curdensity;
+        lightenergy += absorbedlight * transmittance;
+        transmittance *= 1-curdensity;
+    }
+    CurPos -= localcamvec;
+}
+
+return float4( lightenergy, transmittance);

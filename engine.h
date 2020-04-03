@@ -8,7 +8,7 @@ class Engine{
     private:// fields
         std::vector<SceneObj* > obj_list;
         GLFWwindow* window;
-        bool quit_,ctrl_,shift_;
+        bool quit_,ctrl_,lshift_,rshift_;
         double last_X,last_Y;
         static Engine* current_engine;
     public:// methods
@@ -33,3 +33,8 @@ class Engine{
         void sceneLoop();
         void scenesetup();
 };
+//// DEFINE FLAGS HERE
+// #define NOISE
+// #define TWO_D
+// #define SAVE_TEXTURE
+#define CLOUD

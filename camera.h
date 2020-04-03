@@ -7,7 +7,7 @@ class Camera {
 public:
     static Camera* main;
     Camera(int width, int height, float fov, float near, float far);
-
+    void update_axis(bool update_);
     void calcProjView();
     void calcProjViewNative();
     void view(glm::vec3 pos, glm::vec3 at, glm::vec3 up);

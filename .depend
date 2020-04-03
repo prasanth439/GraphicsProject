@@ -766,7 +766,7 @@
  glm/gtc/../gtc/../ext/vector_int1_precision.hpp \
  glm/gtc/../gtc/../ext/vector_uint1.hpp \
  glm/gtc/../gtc/../ext/vector_uint1_precision.hpp glm/gtc/type_ptr.inl \
- renderers/noiserenderer.h computeshader.h camera.h engine.h
+ renderers/noiserenderer.h computeshader.h camera.h engine.h stb_image.h
 ./build/gridrenderer.o: renderers/gridrenderer.cpp renderers/gridrenderer.h \
  renderer.h sceneobj.h shader.h glm/glm.hpp glm/detail/_fixes.hpp \
  glm/detail/setup.hpp glm/detail/../simd/platform.h glm/fwd.hpp \

@@ -84,10 +84,10 @@ void main() {
     vec2 intersect = ray_box_intersection(bmin,bmax,worldCamPos,1/ray_dir);
     
     vec3 start_pt = worldCamPos + intersect.x*ray_dir;
-    float march_steps = 11;
+    float march_steps = 20;
     float current_ray_dist = 0;
     vec3 current_pos = vec3(0);
-    float step_dist = intersect.y/march_steps;
+    float step_dist = (intersect.y/march_steps)*0.4;
     vec3 lightEnergy = vec3(0);
     float cosAngle = dot(ray_dir,worldLightPos0);
     float phaseVal = phase(cosAngle);
@@ -97,7 +97,8 @@ void main() {
         float density = sample_density(current_pos,bmin,bmax);
         if(density >0){
             float lightTransmittance = lightCalc(current_pos,bmin,bmax);
-            lightEnergy+=density*step_dist * transmittance * lightTransmittance * phaseVal;
+            lightEnergy+=1.*phaseVal;
+            // lightEnergy+=density*step_dist * transmittance * lightTransmittance * phaseVal;
             transmittance *= exp(-density * step_dist * lightAbsorptionThroughCloud);
             if(transmittance < 0.01){
                 break;
@@ -106,7 +107,7 @@ void main() {
         current_ray_dist+=step_dist;
     }
     vec3 cloudCol = lightEnergy*LightCol0;
-    vec3 color_it = vec3(1,1,1)*transmittance + cloudCol;
+    vec3 color_it = /*vec3(1,1,1)*transmittance */ +cloudCol;
     frag_color = vec4(color_it,1.0);
     return;
 }
