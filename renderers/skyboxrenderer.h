@@ -1,14 +1,12 @@
 #include "renderer.h"
 #pragma once
 
-class MyRenderer: public Renderer{
+class SkyBoxRenderer: public Renderer{
     public:
-        GLuint vao;
-        Light* li;
-        MyRenderer(Shader* _shader=nullptr);
+        GLuint vao,tbo;
+        SkyBoxRenderer(Shader* _shader=nullptr);
         Renderer* clone();
         void render(const glm::mat4& world_mat);
     private:
         int count_indexes;
-        
 };

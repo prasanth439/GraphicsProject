@@ -6,13 +6,13 @@
 class NoiseRenderer: public Renderer{
     public:
         GLuint vao,tbo;
-        glm::mat4 model_mat;
         std::chrono::_V2::system_clock::time_point start_;
         Light* li;
         int count_indexes;
         ComputeShader* noise_compute;
-        NoiseRenderer();
-        void render();
+        NoiseRenderer(Shader* _shader=nullptr);
+        void render(const glm::mat4& worldmat);
+        Renderer* clone();
         static GLuint LoadNoiseTexture3D(const char* load_file,glm::ivec4 tex_dim);
         GLuint GenerateNoiseTexture2D(const char* save_file);
         static GLuint LoadNoiseTexture2D(const char* load_file);

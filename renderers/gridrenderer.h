@@ -4,9 +4,10 @@
 class GridRenderer: public Renderer{
     public:
         GLuint vao;
-        glm::mat4 model_mat;
-        GridRenderer();
-        void render();
+        GridRenderer(Shader* _shader=nullptr);
+        ~GridRenderer();
+        Renderer* clone();
+        void render(const glm::mat4& world_mat);
     private:
         int count_indexes;
 };

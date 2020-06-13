@@ -19,6 +19,7 @@ class Shader{
         void setVec3(const char* name,const glm::vec3& vec);
         void setFloat(const char* name,float f);
         Shader(const char *vsfile=NULL, const char *fsfile=NULL);
+        ~Shader();
     protected:
         GLuint prog_id;
         GLuint MVPid; // Every shader must have at least an MVP.

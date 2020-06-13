@@ -1,5 +1,4 @@
 #include "noiserenderer.h"
-#include "camera.h"
 #include "engine.h"
 
 
@@ -8,6 +7,7 @@ static void save_texture_to_file(void* ptr,uint size_,const char* name){
     fwrite(ptr,size_,1,noise_write);
     return ;   
 }
+
 static void load_texture_data_from_file(const char* name,void* data){
     FILE* noise_read  = fopen(name,"rb");
     long int size_ = 0;
@@ -104,9 +104,9 @@ GLuint NoiseRenderer::LoadNoiseTexture3D(const char* load_file,glm::ivec4 tex_di
     glGenTextures(1,&tbo);
     glBindTexture(GL_TEXTURE_3D,tbo);
 
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);	
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -119,9 +119,11 @@ GLuint NoiseRenderer::LoadNoiseTexture3D(const char* load_file,glm::ivec4 tex_di
     delete[] data;
     return tbo;
 }
-NoiseRenderer::NoiseRenderer()
+Renderer* NoiseRenderer::clone(){
+    return new NoiseRenderer();
+}
+NoiseRenderer::NoiseRenderer(Shader* _shader):Renderer(_shader)
 {
-    model_mat = glm::mat4(1.0f);
     GLfloat vertices[] = {
         -1.0f, -1.0f, 0.0,0.0,//0
         1.0f, -1.0f, 1.0,0.0,//1  
@@ -167,7 +169,7 @@ NoiseRenderer::NoiseRenderer()
     glBindVertexArray(0);
 }
 
-void NoiseRenderer::render()
+void NoiseRenderer::render(const glm::mat4& world_mat)
 {
     float z_value;
     // setting 
@@ -189,10 +191,9 @@ void NoiseRenderer::render()
     // noise_compute->setVec2("time_scale",time_scale);
     // noise_compute->dispatch_shader(tex_dim.x/ 16,tex_dim.y/ 16,1);
     // glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);  
-    Shader* s = this->parent->shader;
-    s->use();
+    shader->use();
     #ifndef TWO_D
-    s->setFloat("z",z_value);
+    shader->setFloat("z",z_value);
     #endif
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES,count_indexes,GL_UNSIGNED_INT,0);

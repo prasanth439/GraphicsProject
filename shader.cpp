@@ -1,7 +1,9 @@
 #include "shader.h"
 #include <fstream>
 #include <iostream>
-
+Shader::~Shader(){
+   glDeleteProgram(prog_id);
+}
 void Shader::init(SceneObj* parent_)
 {
     parent = parent_;
@@ -145,15 +147,16 @@ void Shader::programFromfile(const char *vs_file, const char *fs_file)
 
 void Shader::makeProgram(GLuint vs, GLint fs)
 {
-    prog_id = glCreateProgram();
-    if(vs >= 0 && isCompiled("Vertex", vs)) glAttachShader(prog_id, vs);
-    if(fs >= 0 && isCompiled("Fragment", fs)) glAttachShader(prog_id, fs);
+   prog_id = glCreateProgram();
+   if(vs >= 0 && isCompiled("Vertex", vs)) glAttachShader(prog_id, vs);
+   if(fs >= 0 && isCompiled("Fragment", fs)) glAttachShader(prog_id, fs);
+   glLinkProgram(prog_id);
+   if(isLinked(prog_id))
+      glUseProgram(prog_id);
 
-    glLinkProgram(prog_id);
-    if(isLinked(prog_id))
-       glUseProgram(prog_id);
-
-    getUniformIDs();
+   glDeleteShader(vs);
+   glDeleteShader(fs);
+   getUniformIDs();
 }
 
 void Shader::defaults()

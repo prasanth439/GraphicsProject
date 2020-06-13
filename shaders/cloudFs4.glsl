@@ -99,7 +99,19 @@ vec4 march(in vec3 ro, in vec3 rd,float tnear,float tfar){
     }
     return vec4(light_energy,1);
 }
-
+float sample_density(in vec3 pos){
+    float ans = 0.0f;
+    vec3 scaled_pos = conv(pos);
+    ans = texture(noiseTexture,0.8f*scaled_pos).r;
+    ans = length(scaled_pos - vec3(0.5,0.5,0.5));
+    if(ans <0.6){
+        return exp(-1.9/ans);
+    }
+    else{
+        return 0.0f;
+    }
+    return ans;
+}
 vec4 march2(in vec3 ro, in vec3 rd,float tnear,float tfar){
     float accumdist = 0;
     float curdensity = 0;
@@ -110,8 +122,8 @@ vec4 march2(in vec3 ro, in vec3 rd,float tnear,float tfar){
     float ShadowSteps = 6;
     float shadowstepsize = 1.0f / ShadowSteps;
     vec3 LightVector = worldLightPos0;
-    float Density = 1.0f;
-    float ShadowDensity = 1.0f;
+    float Density = 10.0f;
+    float ShadowDensity = 10.0f;
     LightVector *= shadowstepsize;
     ShadowDensity *= shadowstepsize;
     vec3 CurPos = ro;
@@ -122,7 +134,7 @@ vec4 march2(in vec3 ro, in vec3 rd,float tnear,float tfar){
 
     for (int i = 0; i < MaxSteps; i++)
     {
-        float cursample = texture(noiseTexture,0.8f*conv(CurPos)).r;
+        float cursample = sample_density(CurPos);
 
         //Sample Light Absorption and Scattering
         if( cursample > 0.001)
@@ -133,7 +145,7 @@ vec4 march2(in vec3 ro, in vec3 rd,float tnear,float tfar){
             for (int s = 0; s < ShadowSteps; s++)
             {
                 lpos += LightVector;
-                float lsample =texture(noiseTexture,0.8f*conv(lpos)).r;
+                float lsample =sample_density(lpos);
 
                 vec3 shadowboxtest = floor( 0.5 + ( abs( 0.5 - conv(lpos) ) ) );
                 float exitshadowbox = shadowboxtest.x + shadowboxtest.y + shadowboxtest.z;
@@ -148,7 +160,7 @@ vec4 march2(in vec3 ro, in vec3 rd,float tnear,float tfar){
             lightenergy += absorbedlight * transmittance;
             transmittance *= 1-curdensity;
         }
-        CurPos -= localcamvec;
+        CurPos += localcamvec;
     }
     return vec4( lightenergy, transmittance);
 }

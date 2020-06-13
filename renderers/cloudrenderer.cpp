@@ -1,6 +1,5 @@
 #include "cloudrenderer.h"
 #include "noiserenderer.h"
-#include "camera.h"
 #include "engine.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include<stb_image.h>
@@ -13,8 +12,8 @@ glm::vec4 createTexture(){
    printf("width %d %d %d",width,height,n);
    glGenTextures(1,&tbo);
    glBindTexture(GL_TEXTURE_2D, tbo);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);	
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -23,22 +22,25 @@ glm::vec4 createTexture(){
 //    delete[] data;
    return glm::vec4(tbo,width,height,n);
 }
-CloudRenderer::CloudRenderer()
+Renderer* CloudRenderer::clone(){
+    return new CloudRenderer();
+}
+CloudRenderer::CloudRenderer(Shader* _shader):Renderer(_shader)
 {
+    shader = new Shader("shaders/cloudVs.glsl","shaders/cloudFs4.glsl");
     start_ = std::chrono::high_resolution_clock::now();
     li = new Light();
     li->position = glm::normalize(glm::vec3{1,10,3});
     li->color = glm::vec3{0,1,0};
-    model_mat = glm::mat4(1.0f);
     GLfloat vertices[] = {
-        -2.5f, -2.5f, -2.5f, -0.5f, -0.5f, -0.5f,// 0
-        2.5f, -2.5f, -2.5f,  0.5f, -0.5f, -0.5f, //1
-        2.5f,  2.5f, -2.5f,  0.5f,  0.5f, -0.5f, //2
-        -2.5f,  2.5f, -2.5f, -0.5f,  0.5f, -0.5f,// 3
-        -2.5f, -2.5f,  2.5f, -0.5f, -0.5f,  0.5f,// 4
-        2.5f, -2.5f,  2.5f,  0.5f, -0.5f,  0.5f, //5
-        2.5f,  2.5f,  2.5f,  0.5f,  0.5f,  0.5f, //6
-        -2.5f,  2.5f,  2.5f, -0.5f,  0.5f,  0.5f,// 7
+        -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,// 0
+        0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, //1
+        0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f, //2
+        -0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f,// 3
+        -0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f,// 4
+        0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  0.5f, //5
+        0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  0.5f, //6
+        -0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f,// 7
     };
 
     GLuint indexes[] = {
@@ -85,39 +87,38 @@ CloudRenderer::CloudRenderer()
     glBindVertexArray(0);
 }
 
-void CloudRenderer::render()
+void CloudRenderer::render(const glm::mat4& world_mat)
 {
     auto end = std::chrono::high_resolution_clock::now();
     float seconds = (float)std::chrono::duration_cast<std::chrono::milliseconds>(end-start_).count()/800;
     seconds = 100.f;
     glBindTexture(GL_TEXTURE_3D,tbo);
-    Shader* s = this->parent->shader;
-    s->use();
+    shader->use();
     // setting 
     glm::mat4 transl = glm::translate(glm::mat4(1),glm::vec3(0,10,0));
-    glm::mat4 scale = glm::scale(glm::mat4(1),glm::vec3(4,3,4));
-    glm::mat4 temp_model = transl*scale*model_mat;
+    glm::mat4 scale = glm::scale(glm::mat4(1),glm::vec3(20,10,20));
+    glm::mat4 temp_model = transl*scale*world_mat;
     Engine* inst_ = Engine::get_instance();
     glm::vec2 screen_resol_ = glm::vec2(inst_->screen_width,inst_->screen_height);
-    s->setFloat("focal_len",1/glm::tan(glm::radians(inst_->fov)/2));
-    s->setFloat("lightAbsorptionThroughCloud",0.4);
-    s->setFloat("lightAbsorptionTowardsSun",0.4);
-    s->setFloat("light_steps",4.0f);
-    s->setFloat("darknessTh",0.7f);
-    s->setVec2("screen_resolution",screen_resol_);
-    s->setVec3("phaseParams",glm::vec4(6.f,6.f,6.f,6.f));
-    s->setVec3("boundBoxMax_",temp_model*(glm::vec4(2.5,2.5,2.5,1.)));
-    s->setVec3("boundBoxMin_",temp_model*glm::vec4(-2.5,-2.5,-2.5,1.));
-    s->setVec3("worldCamPos",Camera::main->pos);
-    s->setVec3("worldLightPos0",glm::normalize(li->position));
-    s->setVec3("LightCol0",li->color);
-    s->setMat4("model",temp_model);
-    s->setMat4("view",Camera::main->viewmat);
-    s->setMat4("project",Camera::main->projmat);
-    s->setVec3("iResolution",glm::vec3(screen_resol_,0.0f));
-    s->setFloat("iTime",seconds);
-    s->setVec3("iChannelResolution",resol);
-    s->setVec2("iMouse",glm::vec2(30,30));
+    shader->setFloat("focal_len",1/glm::tan(glm::radians(inst_->fov)/2));
+    shader->setFloat("lightAbsorptionThroughCloud",0.4);
+    shader->setFloat("lightAbsorptionTowardsSun",0.4);
+    shader->setFloat("light_steps",4.0f);
+    shader->setFloat("darknessTh",0.7f);
+    shader->setVec2("screen_resolution",screen_resol_);
+    shader->setVec3("phaseParams",glm::vec4(6.f,6.f,6.f,6.f));
+    shader->setVec3("boundBoxMax_",temp_model*(glm::vec4(0.5,0.5,0.5,1.)));
+    shader->setVec3("boundBoxMin_",temp_model*glm::vec4(-0.5,-0.5,-0.5,1.));
+    shader->setVec3("worldCamPos",Camera::main->pos());
+    shader->setVec3("worldLightPos0",glm::normalize(li->position));
+    shader->setVec3("LightCol0",li->color);
+    shader->setMat4("model",temp_model);
+    shader->setMat4("view",Camera::main->viewmat);
+    shader->setMat4("project",Camera::main->projmat);
+    shader->setVec3("iResolution",glm::vec3(screen_resol_,0.0f));
+    shader->setFloat("iTime",seconds);
+    shader->setVec3("iChannelResolution",resol);
+    shader->setVec2("iMouse",glm::vec2(30,30));
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES,count_indexes,GL_UNSIGNED_INT,0);
     return;

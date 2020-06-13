@@ -1,10 +1,10 @@
 #version 410
 in vec3 Pos;
 in vec3 Norm;
-uniform vec3 worldLightPos0;
+uniform vec3 worldLightDir;
 out vec4 frag_color;
 void main() {
-    vec3 lightDir = normalize(worldLightPos0-Pos);
+    vec3 lightDir = worldLightDir;
     vec3 amb_component = vec3(0.2,0.2,0.2);
     vec3 diffuse_component = vec3(1,1,1)*max(0,dot(lightDir,Norm));
     vec3 spec_component = vec3(1,1,1)*pow(max(0,dot(lightDir,Norm)),50.0);

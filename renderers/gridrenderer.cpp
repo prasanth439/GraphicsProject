@@ -1,8 +1,15 @@
 #include "gridrenderer.h"
 #include "camera.h"
-GridRenderer::GridRenderer()
+GridRenderer::~GridRenderer(){
+    glDeleteVertexArrays(1,&vao);
+}
+
+Renderer* GridRenderer::clone(){
+    return new GridRenderer();
+}
+GridRenderer::GridRenderer(Shader* _shader):Renderer(_shader)
 {
-    model_mat = glm::mat4(1.0f);
+    shader = new Shader("shaders/gridVs.glsl","shaders/gridFs.glsl");
     int grid_unit = 5;
     int grid_size = 9;
     grid_size|=1;
@@ -68,19 +75,20 @@ GridRenderer::GridRenderer()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, properties_*sizeof(GLfloat), NULL);
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);
+    glDeleteBuffers(1,&vbo);
+    glDeleteBuffers(1,&ebo);
     delete[] vertices;
     delete[] indexes;
     return ;
 }
 
-void GridRenderer::render()
+void GridRenderer::render(const glm::mat4& world_mat)
 {
-    Shader* s = this->parent->shader;
-    s->use();
+    shader->use();
     // setting 
-    s->setMat4("model",model_mat);
-    s->setMat4("view",Camera::main->viewmat);
-    s->setMat4("project",Camera::main->projmat);
+    shader->setMat4("model",world_mat);
+    shader->setMat4("view",Camera::main->viewmat);
+    shader->setMat4("project",Camera::main->projmat);
     glBindVertexArray(vao);
     glDrawElements(GL_LINES,count_indexes,GL_UNSIGNED_INT,0);
     return;

@@ -1,16 +1,19 @@
 #pragma once
 #include "sceneobj.h"
+#include "camera.h"
 #include <glm/glm.hpp>
 #include<glm/gtc/type_ptr.hpp>
 class SceneObj;
-
+class Shader;
 class Renderer{
     public:
         SceneObj* parent;
-        Renderer();
+        Shader* shader;
+        Renderer(Shader* _shader);
+        virtual ~Renderer();
         void init(SceneObj* parent_);
-        virtual void render()= 0;
-
+        virtual Renderer* clone();
+        virtual void render(const glm::mat4&);
 };
 
 class Light{

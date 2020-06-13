@@ -1,43 +1,35 @@
-#include "myrenderer.h"
-
-Renderer* MyRenderer::clone(){
-    return new MyRenderer();
+#include "floorrenderer.h"
+#include "texturegen.h"
+FloorRenderer::~FloorRenderer(){
+    
 }
-MyRenderer::MyRenderer(Shader* _shader):Renderer(_shader)
+Renderer* FloorRenderer::clone(){
+    return new FloorRenderer(vao,tbo,shader);
+}
+FloorRenderer::FloorRenderer(GLuint vao_,GLuint tbo_,Shader* shader_):Renderer(shader_){
+    vao = vao_;
+    tbo = tbo_;
+}
+FloorRenderer::FloorRenderer(Shader* _shader):Renderer(_shader)
 {
-    shader = new Shader("shaders/vertex.glsl","shaders/fragment.glsl");
-    li = new Light();
-    li->position = glm::vec3{1,10,0};
-    li->color = glm::vec3{1,1,1};
+    shader = new Shader("shaders/floorvs.glsl","shaders/floorfs.glsl");
+    std::string fileName = "seemLessTiles.jpg";
+    tbo = TextureGen::generateTexture(fileName);
     GLfloat vertices[] = {
-        -2.5f, -2.5f, -2.5f, -0.5f, -0.5f, -0.5f,// 0
-        2.5f, -2.5f, -2.5f,  0.5f, -0.5f, -0.5f, //1
-        2.5f,  2.5f, -2.5f,  0.5f,  0.5f, -0.5f, //2
-        -2.5f,  2.5f, -2.5f, -0.5f,  0.5f, -0.5f,// 3
-        -2.5f, -2.5f,  2.5f, -0.5f, -0.5f,  0.5f,// 4
-        2.5f, -2.5f,  2.5f,  0.5f, -0.5f,  0.5f, //5
-        2.5f,  2.5f,  2.5f,  0.5f,  0.5f,  0.5f, //6
-        -2.5f,  2.5f,  2.5f, -0.5f,  0.5f,  0.5f,// 7
+        1.0f,  0.0f, -1.0f, 0.0,1.0f
+        -1.0f,  0.0f, -1.0f,0.0f,0.0f,
+        1.0f,  0.0f,  1.0f, 1.0f,0.0f,
+        -1.0f,  0.0f,  1.0f,1.0f,1.0f
     };
 
     GLuint indexes[] = {
-        0,2,1,//CLK
-        2,0,3,//CLK
-        4,5,6,
-        6,7,4,
-        7,3,0,
-        0,4,7,
-        6,1,2,
-        1,6,5,
-        0,1,5,
-        5,4,0,
-        3,6,2,
-        6,3,7
+        1,2,0,
+        2,1,3
     };
     count_indexes = sizeof(indexes)/sizeof(indexes[0]);
     GLuint vbo = 0, ebo = 0;
-    int properties_ = 6;
-    int vertices_size = 8;
+    int properties_ = 5;
+    int vertices_size = 4;
     int indexes_size = count_indexes;
     // generate and setup vertex buffer object
     glGenBuffers(1, &vbo);
@@ -54,7 +46,7 @@ MyRenderer::MyRenderer(Shader* _shader):Renderer(_shader)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, properties_*sizeof(GLfloat), NULL);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, properties_*sizeof(GLfloat), (GLvoid*)(3*sizeof(GLfloat)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, properties_*sizeof(GLfloat), (GLvoid*)(3*sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
     glBindVertexArray(0);
     glDeleteBuffers(1,&vbo);
@@ -62,11 +54,10 @@ MyRenderer::MyRenderer(Shader* _shader):Renderer(_shader)
     return ;
 }
 
-void MyRenderer::render(const glm::mat4& world_mat)
+void FloorRenderer::render(const glm::mat4& world_mat)
 {
     shader->use();
     // setting 
-    shader->setVec3("worldLightDir",glm::normalize(li->position));
     shader->setMat4("model",world_mat);
     shader->setMat4("view",Camera::main->viewmat);
     shader->setMat4("project",Camera::main->projmat);
