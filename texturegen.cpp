@@ -61,7 +61,9 @@ GLuint TextureGen::generateTexture(string& fileName){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
     int width,height,channels;
-    GLubyte* data = stbi_load(fileName.c_str(),&width,&height,&channels,0);    
+    GLubyte* data = stbi_load(fileName.c_str(),&width,&height,&channels,0);
+    assert(data!=nullptr); 
+    printf("Width %d%d %d\n",width,height,channels);
     glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,data);
     delete[] data;
     glBindTexture(GL_TEXTURE_2D,0);

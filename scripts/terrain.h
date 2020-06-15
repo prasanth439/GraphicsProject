@@ -13,6 +13,7 @@ struct PosComp{
 class Terrain:public RunScript{
 public:
     Terrain();
+    Terrain(int);
     ~Terrain();
     void init();
     void update(float time_step);
@@ -20,7 +21,7 @@ public:
 private:
     std::list<SceneObj*>* availableTerrain;
     std::map<glm::ivec2,SceneObj*,PosComp>* terrainMapPrev,*terrainMapCurr;
-    float sizeOfGrid;
+    float sizeOfFloor;
 public:
     SceneObj* gridParent;
     SceneObj* terrain_obj;

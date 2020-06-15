@@ -16,15 +16,15 @@ FloorRenderer::FloorRenderer(Shader* _shader):Renderer(_shader)
     std::string fileName = "seemLessTiles.jpg";
     tbo = TextureGen::generateTexture(fileName);
     GLfloat vertices[] = {
-        1.0f,  0.0f, -1.0f, 0.0,1.0f
-        -1.0f,  0.0f, -1.0f,0.0f,0.0f,
-        1.0f,  0.0f,  1.0f, 1.0f,0.0f,
-        -1.0f,  0.0f,  1.0f,1.0f,1.0f
+        -0.5f,  0.0f, -0.5f,0.0f,0.0f,
+        0.5f,  0.0f, -0.5f, 1.0,0.0f,
+        -0.5f,  0.0f,  0.5f,0.0f,1.0f,
+        0.5f,  0.0f,  0.5f, 1.0f,1.0f,
     };
 
     GLuint indexes[] = {
-        1,2,0,
-        2,1,3
+        0,2,1,
+        2,3,1
     };
     count_indexes = sizeof(indexes)/sizeof(indexes[0]);
     GLuint vbo = 0, ebo = 0;
@@ -56,6 +56,8 @@ FloorRenderer::FloorRenderer(Shader* _shader):Renderer(_shader)
 
 void FloorRenderer::render(const glm::mat4& world_mat)
 {
+    glBindTexture(GL_TEXTURE_2D,tbo);
+    glActiveTexture(GL_TEXTURE0);
     shader->use();
     // setting 
     shader->setMat4("model",world_mat);

@@ -1,9 +1,11 @@
 #include "terrain.h"
 
 Terrain::Terrain(){
-    sizeOfGrid = 40;
+    sizeOfFloor = 50;
 }
-
+Terrain::Terrain(int size_){
+    sizeOfFloor = size_;
+}
 Terrain::~Terrain(){
 
 }
@@ -16,14 +18,14 @@ void Terrain::init(){
 }
 SceneObj* Terrain::CreateTerrain(const glm::ivec2& pos){
     SceneObj* newTerrain = SceneObj::clone(terrain_obj);
-    newTerrain->transform->setPosition(glm::vec3(pos.x*sizeOfGrid,0,pos.y*sizeOfGrid));
+    newTerrain->transform->setPosition(glm::vec3(pos.x*sizeOfFloor,0,pos.y*sizeOfFloor));
     availableTerrain->push_back(newTerrain);
     newTerrain->shouldDisplay = true;
     return newTerrain;
 }
 
 void Terrain::update(float time_step){
-    glm::ivec2 pos(glm::floor(scene_obj->transform->position.x/sizeOfGrid),glm::floor(scene_obj->transform->position.z/sizeOfGrid));
+    glm::ivec2 pos(glm::floor(scene_obj->transform->position.x/sizeOfFloor+0.5f),glm::floor(scene_obj->transform->position.z/sizeOfFloor+0.5f));
     
     for(auto a=availableTerrain->begin();a!=availableTerrain->end();a++){
         (*a)->shouldDisplay = false;
@@ -41,6 +43,7 @@ void Terrain::update(float time_step){
             }
         }
     }
+    int count_of_display = 0;
     for(auto a=availableTerrain->begin();a!=availableTerrain->end();){
         if(!(*a)->shouldDisplay){
             delete (*a);
@@ -48,9 +51,11 @@ void Terrain::update(float time_step){
         }
         else{
             ++a;
+            count_of_display++;
         }
     }
-    
+    assert(availableTerrain->size()==9);
+    assert(count_of_display==9);
     auto tempReference = terrainMapPrev;
     terrainMapPrev = terrainMapCurr;
     terrainMapCurr = tempReference;

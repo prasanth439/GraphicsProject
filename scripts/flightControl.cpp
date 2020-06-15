@@ -2,7 +2,7 @@
 #include "glwindow.h"
 #include<GLFW/glfw3.h>
 FlightControl::FlightControl(){
-    speed = 20.0f;
+    speed = 30.0f;
     acceleration = 0.1f;
     maxSpeed = 10.0f;
 

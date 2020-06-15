@@ -1,5 +1,5 @@
-CC=g++
-DEBUG=-g
+CC=g++ -O3
+DEBUG=
 GTK_FLAG=`pkg-config gtkmm-3.0 --cflags --libs` -DGLIB_DISABLE_DEPRECATION_WARNINGS -DGTK_WIN
 WIN_FLAG=gl_win
 INCLUDES=-I . -I renderers

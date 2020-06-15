@@ -75,7 +75,7 @@ void Engine::scenesetup()
 {
         // global light
     Camera::main = new Camera(screen_width,screen_height,fov,0.1f,1000.0f);
-
+    int floorSize = 200;
 
     Renderer* cubeRenderer_ = new MyRenderer();
     Transform* cubeTransform_ = new Transform(glm::vec3(0,10,0),glm::quat(1,0,0,0),glm::vec3(1,1,1));
@@ -100,13 +100,13 @@ void Engine::scenesetup()
     Renderer* cloudRenderer_ = new CloudRenderer(cloudShader_);
     SceneObj* cloudBox = (new SceneObj(cloudRenderer_))->init();
     #endif
-    Renderer* gridRenderer_ = new GridRenderer();
-    Transform* gridTransform_ = new Transform(glm::vec3(0,10,0),glm::quat(1,0,0,0),glm::vec3(1,1,1));
-    SceneObj* grid = (new SceneObj(gridRenderer_,gridTransform_))->init();
+    Renderer* floorRenderer_ = new FloorRenderer();
+    Transform* floorTransform_ = new Transform(glm::vec3(0,0,0),glm::quat(1,0,0,0),glm::vec3(floorSize,1,floorSize));
+    SceneObj* floor = (new SceneObj(floorRenderer_,floorTransform_))->init();
     
-    Renderer* gridParentRenderer_ = new FloorRenderer();
-    Transform* gridParentTransform_ = new Transform(glm::vec3(0,1,0),glm::quat(1,0,0,0),glm::vec3(1,1,1));
-    SceneObj* gridParent = (new SceneObj(gridParentRenderer_,gridParentTransform_))->init();
+    Renderer* floorParentRenderer_ = new Renderer(nullptr);
+    Transform* floorParentTransform_ = new Transform(glm::vec3(0,1,0),glm::quat(1,0,0,0),glm::vec3(1,1,1));
+    SceneObj* floorParent = (new SceneObj(floorParentRenderer_,floorParentTransform_))->init();
     
     
     SkyBoxRenderer* skyrenderer_  = new SkyBoxRenderer();
@@ -123,10 +123,10 @@ void Engine::scenesetup()
     #endif
 
     // lets have run scripts and 
-    addObject(grid);
+    addObject(floor);
     addObject(cube);
     addObject(camObj);
-    addObject(gridParent);
+    addObject(floorParent);
     addObject(skybox);
     #ifdef CLOUD
     addObject(cloudBox);
@@ -142,10 +142,10 @@ void Engine::scenesetup()
     fc_->attachParent(cube);
     fc_->camObj = camObj;
     
-    Terrain* tm_ = new Terrain();
+    Terrain* tm_ = new Terrain(floorSize);
     tm_->attachParent(cube);
-    tm_->gridParent = gridParent;
-    tm_->terrain_obj = grid;
+    tm_->gridParent = floorParent;
+    tm_->terrain_obj = floor;
     script_list.push_back(fc_);
     script_list.push_back(tm_);
 }
